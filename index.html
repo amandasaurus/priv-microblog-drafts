@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Microblog</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+	<script defer src="./alpinejs-3.10.2-cdn.min.js"></script>
+	<link rel=stylesheet href="style.css" />
+	<link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
+</head>
+<body>
+	<main>
+
+<div x-data="{ posts: [] }">
+
+	<template x-for="(post, index) in posts" :key="post.uid" >
+		<div class=post>
+			<span x-text="post.text.length"></span> c
+			<div>
+				<input type=text @value="post.text" x-model="post.text" />
+			</div>
+			<div>
+				<button :disabled="index == 0" @click="posts.splice(index, 1), posts.splice(0, 0, post)">⭱</button>
+				<button :disabled="index == 0" @click="[posts[index-1], posts[index]] = [posts[index], posts[index-1]]">↑</button>
+				<button :disabled="index == posts.length - 1" @click="[posts[index+1], posts[index]] = [posts[index], posts[index+1]]">↓</button>
+				<button :disabled="index == posts.length - 1" @click="posts.splice(index, 1), posts.push(post)">⭳</button>
+				<button @click="posts.splice(index, 1)">🚮</button>
+			</div>
+			<div>
+				<a :href="'https://twitter.com/intent/tweet?text='+encodeURIComponent(post.text)" target=_blank>tweet</a>
+			</div>
+
+		</div>
+	</template>
+
+	<h2>New</h2>
+	<form  x-data="{ new_post: { text: '' } }" @submit.prevent="new_post.uid =  Date.now() ; posts.push(new_post), new_post= { text: '' }">
+		<span x-text="new_post.text.length"></span>
+		<input autocomplete=no type=text name=new_post x-model="new_post.text" autofocus width="500">
+		<button style="min-width: 2rem;" submit>add</button>
+	</form>
+
+
+	<details open><summary>Inner:</summary>
+		<code x-text="JSON.stringify(posts)"></code>
+		<button @click="posts = []">Reset</button>
+	</details>
+	</main>
+
+</div>
+
+</div>
+
+</body>
+</html>
