@@ -4,69 +4,94 @@
 		<title>Microblog</title>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+	<script defer src="./alpinejs-persist-3.10.2-cdn.min.js"></script>
 	<script defer src="./alpinejs-3.10.2-cdn.min.js"></script>
 	<link rel=stylesheet href="style.css" />
 	<link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
 </head>
 <body>
 
-<main x-data="{ posts: [], stash: [] }">
+<main x-data="{ threads: $persist([]), active_thread_uid: null }" x-init="if (threads.length > 0) { active_thread_uid = threads[0].uid; }">
+	<nav>
+		<template x-for="thread in threads" :key="thread.uid">
+			<button @click="active_thread_uid = thread.uid" x-text="thread.title" :disabled="thread.uid == active_thread_uid"></button>
+		</template>
+		<details :open="threads.length == 0">
+			<summary>New thead</summary>
+			<form style="display: inline" x-data="{ new_thread: { title: '', stash: [], posts: [] } }" @submit.prevent="new_thread.uid = Date.now(); console.log(new_thread); threads.push(new_thread); active_thread_uid = new_thread.uid; new_thread ={ title: '', stash: [], posts: []  } ">
+				new thread: <input type=text x-model="new_thread.title" required />
+				<button submit>add</button>
+			</form>
+		</details>
 
-	<template x-for="(post, index) in posts" :key="post.uid" >
-		<div class=post>
-			<span x-text="post.text.length"></span> c
-			<span x-text="post.text.length <= 280 ? 'twitter ok' : 'twitter bad'"></span>
-			<span x-text="post.text.length <= 500 ? 'masto ok' : 'masto bad'"></span>
-			<div>
-				<textarea x-model="post.text" rows=5 cols=40 @keydown.enter.prevent="if ($event.shiftKey) { let src = $event.target.value; let pos = $event.target.selectionStart; $event.target.value = src.slice(0, pos) + '\n' + src.slice(pos) ; $event.target.selectionStart = pos + 1; $event.target.selectionEnd = pos + 1; } else { $event.target.form['submit'].click(); }"></textarea>
-			</div>
-			<div>
-				<button :disabled="index == 0" @click="posts.splice(index, 1), posts.splice(0, 0, post)">⭱</button>
-				<button :disabled="index == 0" @click="[posts[index-1], posts[index]] = [posts[index], posts[index-1]]">↑</button>
-				<button @click="let mynew = JSON.parse(JSON.stringify(post)); mynew.uid = Date.now(); posts.splice(index, 0, mynew);">duplicate</button>
-				<button :disabled="index == posts.length - 1" @click="[posts[index+1], posts[index]] = [posts[index], posts[index+1]]">↓</button>
-				<button :disabled="index == posts.length - 1" @click="posts.splice(index, 1), posts.push(post)">⭳</button>
-				<button @click="posts.splice(index, 1)">🚮</button>
-			</div>
-			<div>
-				<button @click="window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(post.text), '_blank')">tweet</button>
-				<button @click="navigator.clipboard.writeText(post.text)">📋</button>
-				<button @click="posts.splice(index, 1) ; stash.push(post);">stash</button>
-			</div>
+	</nav>
 
-		</div>
+	<template x-for="(thread, index) in threads" :key="thread.uid">
+		<div class=thread x-show="thread.uid == active_thread_uid">
+			<h1>Title: <input type=text x-model="thread.title" /></h1>
+			<div><button @click="threads.splice(index, 1)">delete thread</button></div>
+
+		<template x-for="(post, index) in thread.posts" :key="post.uid" >
+			<div class=post>
+				<span x-text="post.text.length"></span>c
+				Tw <meter :value="post.text.length" x-text="post.text.length" min=0 high=140 max=280></meter>
+				Masto <meter :value="post.text.length" x-text="post.text.length" min=0 high=280 max=500 /></meter>
+				<div>
+					<textarea x-model="post.text" rows=3 cols=80 @keydown.enter.prevent="if ($event.shiftKey) { let src = $event.target.value; let pos = $event.target.selectionStart; $event.target.value = src.slice(0, pos) + '\n' + src.slice(pos) ; $event.target.selectionStart = pos + 1; $event.target.selectionEnd = pos + 1; } else { $event.target.form['submit'].click(); }"></textarea>
+				</div>
+				<div>
+					<button :disabled="index == 0" @click="thread.posts.splice(index, 1), thread.posts.splice(0, 0, post)">⭱</button>
+					<button :disabled="index == 0" @click="[thread.posts[index-1], thread.posts[index]] = [thread.posts[index], thread.posts[index-1]]">↑</button>
+					<button @click="let mynew = JSON.parse(JSON.stringify(post)); mynew.uid = Date.now(); thread.posts.splice(index, 0, mynew);">duplicate</button>
+					<button :disabled="index == thread.posts.length - 1" @click="[thread.posts[index+1], thread.posts[index]] = [thread.posts[index], thread.posts[index+1]]">↓</button>
+					<button :disabled="index == thread.posts.length - 1" @click="thread.posts.splice(index, 1), thread.posts.push(post)">⭳</button>
+					<button @click="thread.posts.splice(index, 1)">🚮</button>
+				</div>
+				<div>
+					<button @click="window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(post.text), '_blank')">tweet</button>
+					<button @click="navigator.clipboard.writeText(post.text)">📋</button>
+					<button @click="thread.posts.splice(index, 1) ; thread.stash.push(post);">stash</button>
+				</div>
+
+			</div>
+		</template>
+
+		<h2>New</h2>
+		<form  x-data="{ new_post: { text: '' } }" @submit.prevent="new_post.uid =  Date.now() ; thread.posts.push(new_post), new_post= { text: '' }">
+			<div class=post>
+				<span x-text="new_post.text.length"></span>c
+				Tw <meter :value="new_post.text.length" x-text="new_post.text.length" min=0 high=140 max=280></meter>
+				Masto <meter :value="new_post.text.length" x-text="new_post.text.length" min=0 high=280 max=500 /></meter>
+			<div>
+				<textarea name=new_post x-model="new_post.text" autofocus rows=3 cols=80 @keydown.enter.prevent="if ($event.shiftKey) { let src = $event.target.value; let pos = $event.target.selectionStart; $event.target.value = src.slice(0, pos) + '\n' + src.slice(pos) ; $event.target.selectionStart = pos + 1; $event.target.selectionEnd = pos + 1; } else { $event.target.form['submit'].click(); }"></textarea>
+			<div>
+				<button name="submit" style="min-width: 2rem;" submit>add</button>
+			</div>
+		</form>
+
+		<h2>Stash</h2>
+		<template x-for="(post, index) in thread.stash" :key="post.uid" >
+			<div class=post>
+				<span x-text="post.text.length"></span> c
+				<span x-text="post.text.length <= 280 ? 'twitter ok' : 'twitter bad'"></span>
+				<span x-text="post.text.length <= 500 ? 'masto ok' : 'masto bad'"></span>
+				<div>
+					<textarea disabled x-model="post.text" rows=3 cols=80 @keydown.enter.prevent="if ($event.shiftKey) { let src = $event.target.value; let pos = $event.target.selectionStart; $event.target.value = src.slice(0, pos) + '\n' + src.slice(pos) ; $event.target.selectionStart = pos + 1; $event.target.selectionEnd = pos + 1; } else { $event.target.form['submit'].click(); }"></textarea>
+				</div>
+				<div>
+					<button @click="stash.splice(index, 1)">🚮</button>
+					<button @click="stash.splice(index, 1) ; thread.posts.push(post);">restore</button>
+				</div>
+
+			</div>
+		</template>
+
 	</template>
+		<details open><summary>Inner:</summary>
+			<pre x-text="JSON.stringify(threads, null, ' ')"></pre>
+			<button @click="threads = []; active_thread_uid = null">Reset</button>
+		</details>
 
-	<h2>New</h2>
-	<form  x-data="{ new_post: { text: '' } }" @submit.prevent="new_post.uid =  Date.now() ; posts.push(new_post), new_post= { text: '' }">
-		<span x-text="new_post.text.length"></span>
-		<textarea name=new_post x-model="new_post.text" autofocus rows=5 cols=40 @keydown.enter.prevent="if ($event.shiftKey) { let src = $event.target.value; let pos = $event.target.selectionStart; $event.target.value = src.slice(0, pos) + '\n' + src.slice(pos) ; $event.target.selectionStart = pos + 1; $event.target.selectionEnd = pos + 1; } else { $event.target.form['submit'].click(); }"></textarea>
-		<button name="submit" style="min-width: 2rem;" submit>add</button>
-	</form>
-
-	<h2>Stash</h2>
-	<template x-for="(post, index) in stash" :key="post.uid" >
-		<div class=post>
-			<span x-text="post.text.length"></span> c
-			<span x-text="post.text.length <= 280 ? 'twitter ok' : 'twitter bad'"></span>
-			<span x-text="post.text.length <= 500 ? 'masto ok' : 'masto bad'"></span>
-			<div>
-				<textarea disabled x-model="post.text" rows=3 cols=30 @keydown.enter.prevent="if ($event.shiftKey) { let src = $event.target.value; let pos = $event.target.selectionStart; $event.target.value = src.slice(0, pos) + '\n' + src.slice(pos) ; $event.target.selectionStart = pos + 1; $event.target.selectionEnd = pos + 1; } else { $event.target.form['submit'].click(); }"></textarea>
-			</div>
-			<div>
-				<button @click="stash.splice(index, 1)">🚮</button>
-				<button @click="stash.splice(index, 1) ; posts.push(post);">restore</button>
-			</div>
-
-		</div>
-	</template>
-
-	<details open><summary>Inner:</summary>
-		<code x-text="JSON.stringify(posts)"></code>
-		<code x-text="JSON.stringify(stash)"></code>
-		<button @click="posts = []; stash = []">Reset</button>
-	</details>
-	</main>
 
 </main>
 
