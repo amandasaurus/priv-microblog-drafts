@@ -1,3 +1,23 @@
+/* Prevent mobile browsers from zooming in when you focus a text input box
+ * https://www.cssjunction.com/css/stop-zoom-in-on-input-focus-on-mobile-devices/
+ */
+@media screen and (max-width: 767px) {
+  input, select, textarea {
+    font-size: 16px;
+  }
+}
+
+body {
+	display: flex;
+	justify-content: center;
+	margin: 0;
+}
+main {
+	max-width: 50ch;
+	min-width: 35ch;
+	margin-top: 1ch;
+}
+
 .post {
 	padding: 1rem 0.1rem;
 }

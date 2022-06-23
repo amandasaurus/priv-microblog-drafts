@@ -9,25 +9,29 @@
 	<link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
 </head>
 <body>
-	<main>
 
-<div x-data="{ posts: [] }">
+<main x-data="{ posts: [], stash: [] }">
 
 	<template x-for="(post, index) in posts" :key="post.uid" >
 		<div class=post>
 			<span x-text="post.text.length"></span> c
+			<span x-text="post.text.length <= 280 ? 'twitter ok' : 'twitter bad'"></span>
+			<span x-text="post.text.length <= 500 ? 'masto ok' : 'masto bad'"></span>
 			<div>
-				<input type=text @value="post.text" x-model="post.text" />
+				<textarea x-model="post.text" rows=5 cols=40 @keydown.enter.prevent="if ($event.shiftKey) { let src = $event.target.value; let pos = $event.target.selectionStart; $event.target.value = src.slice(0, pos) + '\n' + src.slice(pos) ; $event.target.selectionStart = pos + 1; $event.target.selectionEnd = pos + 1; } else { $event.target.form['submit'].click(); }"></textarea>
 			</div>
 			<div>
 				<button :disabled="index == 0" @click="posts.splice(index, 1), posts.splice(0, 0, post)">⭱</button>
 				<button :disabled="index == 0" @click="[posts[index-1], posts[index]] = [posts[index], posts[index-1]]">↑</button>
+				<button @click="let mynew = JSON.parse(JSON.stringify(post)); mynew.uid = Date.now(); posts.splice(index, 0, mynew);">duplicate</button>
 				<button :disabled="index == posts.length - 1" @click="[posts[index+1], posts[index]] = [posts[index], posts[index+1]]">↓</button>
 				<button :disabled="index == posts.length - 1" @click="posts.splice(index, 1), posts.push(post)">⭳</button>
 				<button @click="posts.splice(index, 1)">🚮</button>
 			</div>
 			<div>
-				<a :href="'https://twitter.com/intent/tweet?text='+encodeURIComponent(post.text)" target=_blank>tweet</a>
+				<button @click="window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(post.text), '_blank')">tweet</button>
+				<button @click="navigator.clipboard.writeText(post.text)">📋</button>
+				<button @click="posts.splice(index, 1) ; stash.push(post);">stash</button>
 			</div>
 
 		</div>
@@ -36,18 +40,35 @@
 	<h2>New</h2>
 	<form  x-data="{ new_post: { text: '' } }" @submit.prevent="new_post.uid =  Date.now() ; posts.push(new_post), new_post= { text: '' }">
 		<span x-text="new_post.text.length"></span>
-		<input autocomplete=no type=text name=new_post x-model="new_post.text" autofocus width="500">
-		<button style="min-width: 2rem;" submit>add</button>
+		<textarea name=new_post x-model="new_post.text" autofocus rows=5 cols=40 @keydown.enter.prevent="if ($event.shiftKey) { let src = $event.target.value; let pos = $event.target.selectionStart; $event.target.value = src.slice(0, pos) + '\n' + src.slice(pos) ; $event.target.selectionStart = pos + 1; $event.target.selectionEnd = pos + 1; } else { $event.target.form['submit'].click(); }"></textarea>
+		<button name="submit" style="min-width: 2rem;" submit>add</button>
 	</form>
 
+	<h2>Stash</h2>
+	<template x-for="(post, index) in stash" :key="post.uid" >
+		<div class=post>
+			<span x-text="post.text.length"></span> c
+			<span x-text="post.text.length <= 280 ? 'twitter ok' : 'twitter bad'"></span>
+			<span x-text="post.text.length <= 500 ? 'masto ok' : 'masto bad'"></span>
+			<div>
+				<textarea disabled x-model="post.text" rows=3 cols=30 @keydown.enter.prevent="if ($event.shiftKey) { let src = $event.target.value; let pos = $event.target.selectionStart; $event.target.value = src.slice(0, pos) + '\n' + src.slice(pos) ; $event.target.selectionStart = pos + 1; $event.target.selectionEnd = pos + 1; } else { $event.target.form['submit'].click(); }"></textarea>
+			</div>
+			<div>
+				<button @click="stash.splice(index, 1)">🚮</button>
+				<button @click="stash.splice(index, 1) ; posts.push(post);">restore</button>
+			</div>
+
+		</div>
+	</template>
 
 	<details open><summary>Inner:</summary>
 		<code x-text="JSON.stringify(posts)"></code>
-		<button @click="posts = []">Reset</button>
+		<code x-text="JSON.stringify(stash)"></code>
+		<button @click="posts = []; stash = []">Reset</button>
 	</details>
 	</main>
 
-</div>
+</main>
 
 </div>
 
