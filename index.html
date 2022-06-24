@@ -14,9 +14,11 @@
 <main x-data="{ threads: $persist([]), active_thread_uid: null }" x-init="if (threads.length > 0) { active_thread_uid = threads[0].uid; }">
 	<nav>
 		<span>Show thread:</span>
-		<template x-for="thread in threads" :key="thread.uid">
-			<label><input type=radio :value="thread.uid" x-model=active_thread_uid><span x-text="thread.title"></label>
-		</template>
+		<div style="display: flex; flex-flow: row wrap; gap: 0.3rem 1rem;">
+			<template x-for="thread in threads" :key="thread.uid">
+				<label><input type=radio :value="thread.uid" x-model=active_thread_uid><span x-text="thread.title"></label>
+			</template>
+		</div>
 		<span x-show="threads.length == 0">No threads</span>
 		<form style="display: inline" x-data="{ new_thread: { title: '', stash: [], posts: [] } }" @submit.prevent="new_thread.uid = Date.now(); if (new_thread.title == '') { new_thread.title = new_thread.uid; } ; threads.push(new_thread); active_thread_uid = new_thread.uid; new_thread ={ title: '', stash: [], posts: []  }; $nextTick(() => { document.querySelector(`#thread-${active_thread_uid} form textarea`).focus() ; });">
 			new: <input type=text x-model="new_thread.title" placeholder="Thread Name"/>
@@ -29,16 +31,16 @@
 	<template x-for="(thread, index) in threads" :key="thread.uid">
 		<div class=thread x-show="thread.uid == active_thread_uid" :id="`thread-${thread.uid}`">
 			<h1 x-text="thread.title"></h1>
-			<details closed><summary>Edit</summary>
+			<details :open="thread.posts.length == 0"><summary>Edit</summary>
 				thread title: <input x-model="thread.title" />
 				<button @click="threads.splice(index, 1); active_thread_uid = threads[Math.max(index-1, 0)].uid;">delete thread</button>
-			</details>
+				</details>
 
 			<div x-text="`${thread.posts.length} posts. ${thread.posts.reduce((total, post)=>total+post.text.length, 0)} chars, ${thread.posts.reduce((total, post)=>total+post.text.split(/\s+\b/).length, 0)} words`"></div>
 			<div x-data="{ state: 'notstarted', next_post_index: 0 }">
 				Start copy/paste cycle.
 				<span x-show="state == 'notstarted'">Not started <button @click="state = 'copying' ; next_post_index = 0;">Start copying</button></span>
-				<span x-show="state == 'copying'"><span x-text="`Copying ${next_post_index}: “${thread.posts[next_post_index].text.slice(0, 10)}…”`"></span> <button @click="navigator.clipboard.writeText(thread.posts[next_post_index].text) ; next_post_index++; if (next_post_index >= thread.posts.length) { state='notstarted' ; next_post_index = 0; }" x-text="`Copy № ${next_post_index}`"></button><button @click="state == 'notstarted'; next_post_index=0;">reset</button></span>
+				<span x-show="state == 'copying'"><span x-text="`Copying ${next_post_index}: “${(thread.posts[next_post_index] ?? {text:'N/A'}).text.slice(0, 10)}…”`"></span> <button @click="navigator.clipboard.writeText(thread.posts[next_post_index].text) ; next_post_index++; if (next_post_index >= thread.posts.length) { state='notstarted' ; next_post_index = 0; }" x-text="`Copy № ${next_post_index}`"></button><button @click="state == 'notstarted'; next_post_index=0;">reset</button></span>
 			</div>
 		<template x-for="(post, index) in thread.posts" :key="post.uid" >
 			<div class=post :id="`post-${post.uid}`">
@@ -81,22 +83,25 @@
 			</div>
 		</form>
 
-		<h2>Stash</h2>
-		<template x-for="(post, index) in thread.stash" :key="post.uid" >
-			<div class=post>
-				<span x-text="post.text.length"></span> c
-				<span x-text="post.text.length <= 280 ? 'twitter ok' : 'twitter bad'"></span>
-				<span x-text="post.text.length <= 500 ? 'masto ok' : 'masto bad'"></span>
-				<div>
-					<textarea disabled x-model="post.text" rows=3 cols=80 @keydown.enter.prevent="if ($event.shiftKey) { let src = $event.target.value; let pos = $event.target.selectionStart; $event.target.value = src.slice(0, pos) + '\n' + src.slice(pos) ; $event.target.selectionStart = pos + 1; $event.target.selectionEnd = pos + 1; } else { $event.target.form['submit'].click(); }"></textarea>
-				</div>
-				<div>
-					<button @click="stash.splice(index, 1)">🚮</button>
-					<button @click="stash.splice(index, 1) ; thread.posts.push(post);">restore</button>
-				</div>
+		<div x-show="thread.stash.length > 0">
+			<h2>Stash</h2>
+			<template x-for="(post, index) in thread.stash" :key="post.uid" >
+				<div class=post>
+					<div style="display: inline-block; min-width: 4ch"><span x-text="post.text.length"></span>c</div>
+					<div style="display: inline-block; min-width: 4ch"><span x-text="post.text.split(/\s+\b/).length"></span>w</div>
+					Tw <meter :value="post.text.length" x-text="post.text.length" min=0 high=140 max=280></meter>
+					Mst <meter :value="post.text.length" x-text="post.text.length" min=0 high=280 max=500 /></meter>
+					<div>
+						<textarea disabled x-model="post.text" rows=3 cols=80 @keydown.enter.prevent="if ($event.shiftKey) { let src = $event.target.value; let pos = $event.target.selectionStart; $event.target.value = src.slice(0, pos) + '\n' + src.slice(pos) ; $event.target.selectionStart = pos + 1; $event.target.selectionEnd = pos + 1; } else { $event.target.form['submit'].click(); }"></textarea>
+					</div>
+					<div>
+						<button @click="thread.stash.splice(index, 1)">🚮</button>
+						<button @click="thread.stash.splice(index, 1) ; thread.posts.push(post);">restore</button>
+					</div>
 
-			</div>
-		</template>
+				</div>
+			</template>
+		</div>
 
 	</template>
 
