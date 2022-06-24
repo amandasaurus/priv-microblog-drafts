@@ -35,6 +35,11 @@
 			</details>
 
 			<div x-text="`${thread.posts.length} posts. ${thread.posts.reduce((total, post)=>total+post.text.length, 0)} chars, ${thread.posts.reduce((total, post)=>total+post.text.split(/\s+\b/).length, 0)} words`"></div>
+			<div x-data="{ state: 'notstarted', next_post_index: 0 }">
+				Start copy/paste cycle.
+				<span x-show="state == 'notstarted'">Not started <button @click="state = 'copying' ; next_post_index = 0;">Start copying</button></span>
+				<span x-show="state == 'copying'"><span x-text="`Copying ${next_post_index}: “${thread.posts[next_post_index].text.slice(0, 10)}…”`"></span> <button @click="navigator.clipboard.writeText(thread.posts[next_post_index].text) ; next_post_index++; if (next_post_index >= thread.posts.length) { state='notstarted' ; next_post_index = 0; }" x-text="`Copy № ${next_post_index}`"></button><button @click="state == 'notstarted'; next_post_index=0;">reset</button></span>
+			</div>
 		<template x-for="(post, index) in thread.posts" :key="post.uid" >
 			<div class=post :id="`post-${post.uid}`">
 				<div style="display: inline-block; min-width: 4ch"><span x-text="post.text.length"></span>c</div>
