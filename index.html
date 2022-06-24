@@ -13,31 +13,35 @@
 
 <main x-data="{ threads: $persist([]), active_thread_uid: null }" x-init="if (threads.length > 0) { active_thread_uid = threads[0].uid; }">
 	<nav>
+		<span>Threads:</span>
 		<template x-for="thread in threads" :key="thread.uid">
 			<button @click="active_thread_uid = thread.uid" x-text="thread.title" :disabled="thread.uid == active_thread_uid"></button>
 		</template>
-		<details :open="threads.length == 0">
-			<summary>New thead</summary>
-			<form style="display: inline" x-data="{ new_thread: { title: '', stash: [], posts: [] } }" @submit.prevent="new_thread.uid = Date.now(); console.log(new_thread); threads.push(new_thread); active_thread_uid = new_thread.uid; new_thread ={ title: '', stash: [], posts: []  } ">
-				new thread: <input type=text x-model="new_thread.title" required />
-				<button submit>add</button>
-			</form>
+		<span x-show="threads.length == 0">No threads</span>
+		<form style="display: inline" x-data="{ new_thread: { title: '', stash: [], posts: [] } }" @submit.prevent="new_thread.uid = Date.now(); if (new_thread.title == '') { new_thread.title = new_thread.uid; } ; threads.push(new_thread); active_thread_uid = new_thread.uid; new_thread ={ title: '', stash: [], posts: []  }; $nextTick(() => { document.querySelector(`#thread-${active_thread_uid} form textarea`).focus() ; });">
+			new: <input type=text x-model="new_thread.title" placeholder="Thread Name"/>
+			<button submit>add</button>
+		</form>
 		</details>
 
 	</nav>
 
 	<template x-for="(thread, index) in threads" :key="thread.uid">
-		<div class=thread x-show="thread.uid == active_thread_uid">
-			<h1>Title: <input type=text x-model="thread.title" /></h1>
-			<div><button @click="threads.splice(index, 1)">delete thread</button></div>
+		<div class=thread x-show="thread.uid == active_thread_uid" :id="`thread-${thread.uid}`">
+			<h1 x-text="thread.title"></h1>
+			<details closed><summary>Edit</summary>
+				thread title: <input x-model="thread.title" />
+				<button @click="threads.splice(index, 1)">delete thread</button>
+			</details>
 
 		<template x-for="(post, index) in thread.posts" :key="post.uid" >
 			<div class=post>
-				<span x-text="post.text.length"></span>c
+				<div style="display: inline-block; min-width: 4ch"><span x-text="post.text.length"></span>c</div>
+				<div style="display: inline-block; min-width: 4ch"><span x-text="post.text.split(/\s+\b/).length"></span>w</div>
 				Tw <meter :value="post.text.length" x-text="post.text.length" min=0 high=140 max=280></meter>
-				Masto <meter :value="post.text.length" x-text="post.text.length" min=0 high=280 max=500 /></meter>
+				Mst <meter :value="post.text.length" x-text="post.text.length" min=0 high=280 max=500 /></meter>
 				<div>
-					<textarea x-model="post.text" rows=3 cols=80 @keydown.enter.prevent="if ($event.shiftKey) { let src = $event.target.value; let pos = $event.target.selectionStart; $event.target.value = src.slice(0, pos) + '\n' + src.slice(pos) ; $event.target.selectionStart = pos + 1; $event.target.selectionEnd = pos + 1; } else { $event.target.form['submit'].click(); }"></textarea>
+					<textarea x-model="post.text" rows=3 cols=80></textarea>
 				</div>
 				<div>
 					<button :disabled="index == 0" @click="thread.posts.splice(index, 1), thread.posts.splice(0, 0, post)">⭱</button>
@@ -57,13 +61,14 @@
 		</template>
 
 		<h2>New</h2>
-		<form  x-data="{ new_post: { text: '' } }" @submit.prevent="new_post.uid =  Date.now() ; thread.posts.push(new_post), new_post= { text: '' }">
+		<form class=new_post  x-data="{ post: { text: '' } }" @submit.prevent="post.uid =  Date.now() ; thread.posts.push(post), post= { text: '' }">
 			<div class=post>
-				<span x-text="new_post.text.length"></span>c
-				Tw <meter :value="new_post.text.length" x-text="new_post.text.length" min=0 high=140 max=280></meter>
-				Masto <meter :value="new_post.text.length" x-text="new_post.text.length" min=0 high=280 max=500 /></meter>
+				<div style="display: inline-block; min-width: 4ch"><span x-text="post.text.length"></span>c</div>
+				<div style="display: inline-block; min-width: 4ch"><span x-text="post.text.split(/\s+\b/).length"></span>w</div>
+				Tw <meter :value="post.text.length" x-text="post.text.length" min=0 high=140 max=280></meter>
+				Mst <meter :value="post.text.length" x-text="post.text.length" min=0 high=280 max=500 /></meter>
 			<div>
-				<textarea name=new_post x-model="new_post.text" autofocus rows=3 cols=80 @keydown.enter.prevent="if ($event.shiftKey) { let src = $event.target.value; let pos = $event.target.selectionStart; $event.target.value = src.slice(0, pos) + '\n' + src.slice(pos) ; $event.target.selectionStart = pos + 1; $event.target.selectionEnd = pos + 1; } else { $event.target.form['submit'].click(); }"></textarea>
+				<textarea name=new_post x-model="post.text" autofocus rows=3 cols=80 @keydown.enter.prevent="if ($event.shiftKey) { let src = $event.target.value; let pos = $event.target.selectionStart; $event.target.value = src.slice(0, pos) + '\n' + src.slice(pos) ; $event.target.selectionStart = pos + 1; $event.target.selectionEnd = pos + 1; } else { $event.target.form['submit'].click(); }"></textarea>
 			<div>
 				<button name="submit" style="min-width: 2rem;" submit>add</button>
 			</div>
@@ -87,10 +92,13 @@
 		</template>
 
 	</template>
-		<details open><summary>Inner:</summary>
-			<pre x-text="JSON.stringify(threads, null, ' ')"></pre>
-			<button @click="threads = []; active_thread_uid = null">Reset</button>
-		</details>
+
+
+	<details style="margin-top: 20ch"><summary>Inner:</summary>
+		<pre style="white-space: pre-wrap; max-width: 80ch;" x-text="JSON.stringify(threads, null, ' ')"></pre>
+		<button @click="navigator.clipboard.writeText(JSON.stringify(threads, null, ' '))">copy to clipboard</button>
+		<button @click="threads = []; active_thread_uid = null">Reset</button>
+	</details>
 
 
 </main>
