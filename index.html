@@ -31,9 +31,10 @@
 			<h1 x-text="thread.title"></h1>
 			<details closed><summary>Edit</summary>
 				thread title: <input x-model="thread.title" />
-				<button @click="threads.splice(index, 1)">delete thread</button>
+				<button @click="threads.splice(index, 1); active_thread_uid = threads[Math.max(index-1, 0)].uid;">delete thread</button>
 			</details>
 
+			<div x-text="`${thread.posts.length} posts. ${thread.posts.reduce((total, post)=>total+post.text.length, 0)} chars, ${thread.posts.reduce((total, post)=>total+post.text.split(/\s+\b/).length, 0)} words`"></div>
 		<template x-for="(post, index) in thread.posts" :key="post.uid" >
 			<div class=post>
 				<div style="display: inline-block; min-width: 4ch"><span x-text="post.text.length"></span>c</div>
@@ -47,6 +48,7 @@
 					<button :disabled="index == 0" @click="thread.posts.splice(index, 1), thread.posts.splice(0, 0, post)">⭱</button>
 					<button :disabled="index == 0" @click="[thread.posts[index-1], thread.posts[index]] = [thread.posts[index], thread.posts[index-1]]">↑</button>
 					<button @click="let mynew = JSON.parse(JSON.stringify(post)); mynew.uid = Date.now(); thread.posts.splice(index, 0, mynew);">duplicate</button>
+					<button @click="let mynew = JSON.parse(JSON.stringify(post)); mynew.uid = Date.now(); mynew.text = ''; thread.posts.splice(index+1, 0, mynew);">insert new</button>
 					<button :disabled="index == thread.posts.length - 1" @click="[thread.posts[index+1], thread.posts[index]] = [thread.posts[index], thread.posts[index+1]]">↓</button>
 					<button :disabled="index == thread.posts.length - 1" @click="thread.posts.splice(index, 1), thread.posts.push(post)">⭳</button>
 					<button @click="thread.posts.splice(index, 1)">🚮</button>
