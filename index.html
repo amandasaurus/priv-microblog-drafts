@@ -13,9 +13,9 @@
 
 <main x-data="{ threads: $persist([]), active_thread_uid: null }" x-init="if (threads.length > 0) { active_thread_uid = threads[0].uid; }">
 	<nav>
-		<span>Threads:</span>
+		<span>Show thread:</span>
 		<template x-for="thread in threads" :key="thread.uid">
-			<button @click="active_thread_uid = thread.uid" x-text="thread.title" :disabled="thread.uid == active_thread_uid"></button>
+			<label><input type=radio :value="thread.uid" x-model=active_thread_uid><span x-text="thread.title"></label>
 		</template>
 		<span x-show="threads.length == 0">No threads</span>
 		<form style="display: inline" x-data="{ new_thread: { title: '', stash: [], posts: [] } }" @submit.prevent="new_thread.uid = Date.now(); if (new_thread.title == '') { new_thread.title = new_thread.uid; } ; threads.push(new_thread); active_thread_uid = new_thread.uid; new_thread ={ title: '', stash: [], posts: []  }; $nextTick(() => { document.querySelector(`#thread-${active_thread_uid} form textarea`).focus() ; });">
@@ -36,7 +36,7 @@
 
 			<div x-text="`${thread.posts.length} posts. ${thread.posts.reduce((total, post)=>total+post.text.length, 0)} chars, ${thread.posts.reduce((total, post)=>total+post.text.split(/\s+\b/).length, 0)} words`"></div>
 		<template x-for="(post, index) in thread.posts" :key="post.uid" >
-			<div class=post>
+			<div class=post :id="`post-${post.uid}`">
 				<div style="display: inline-block; min-width: 4ch"><span x-text="post.text.length"></span>c</div>
 				<div style="display: inline-block; min-width: 4ch"><span x-text="post.text.split(/\s+\b/).length"></span>w</div>
 				Tw <meter :value="post.text.length" x-text="post.text.length" min=0 high=140 max=280></meter>
@@ -48,7 +48,7 @@
 					<button :disabled="index == 0" @click="thread.posts.splice(index, 1), thread.posts.splice(0, 0, post)">⭱</button>
 					<button :disabled="index == 0" @click="[thread.posts[index-1], thread.posts[index]] = [thread.posts[index], thread.posts[index-1]]">↑</button>
 					<button @click="let mynew = JSON.parse(JSON.stringify(post)); mynew.uid = Date.now(); thread.posts.splice(index, 0, mynew);">duplicate</button>
-					<button @click="let mynew = JSON.parse(JSON.stringify(post)); mynew.uid = Date.now(); mynew.text = ''; thread.posts.splice(index+1, 0, mynew);">insert new</button>
+					<button @click="let mynew = JSON.parse(JSON.stringify(post)); mynew.uid = Date.now(); mynew.text = ''; thread.posts.splice(index+1, 0, mynew); $nextTick(() => { document.querySelector(`#post-${mynew.uid} textarea`).focus() });">insert new</button>
 					<button :disabled="index == thread.posts.length - 1" @click="[thread.posts[index+1], thread.posts[index]] = [thread.posts[index], thread.posts[index+1]]">↓</button>
 					<button :disabled="index == thread.posts.length - 1" @click="thread.posts.splice(index, 1), thread.posts.push(post)">⭳</button>
 					<button @click="thread.posts.splice(index, 1)">🚮</button>
@@ -98,7 +98,8 @@
 
 	<details style="margin-top: 20ch"><summary>Inner:</summary>
 		<pre style="white-space: pre-wrap; max-width: 80ch;" x-text="JSON.stringify(threads, null, ' ')"></pre>
-		<button @click="navigator.clipboard.writeText(JSON.stringify(threads, null, ' '))">copy to clipboard</button>
+		<button @click="navigator.clipboard.writeText(JSON.stringify(threads, null, ' '))">save to clipboard</button>
+		<button @click="let src = navigator.clipboard.writeText(JSON.stringify(threads, null, ' '))">load from clipboard</button>
 		<button @click="threads = []; active_thread_uid = null">Reset</button>
 	</details>
 
