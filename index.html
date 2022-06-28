@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
 	<head>
 		<title>Microblog</title>
@@ -38,9 +38,12 @@
 
 			<div x-text="`${thread.posts.length} posts. ${thread.posts.reduce((total, post)=>total+post.text.length, 0)} chars, ${thread.posts.reduce((total, post)=>total+post.text.split(/\s+\b/).length, 0)} words`"></div>
 			<div x-data="{ state: 'notstarted', next_post_index: 0 }">
-				Start copy/paste cycle.
-				<span x-show="state == 'notstarted'">Not started <button @click="state = 'copying' ; next_post_index = 0;">Start copying</button></span>
-				<span x-show="state == 'copying'"><span x-text="`Copying ${next_post_index}: “${(thread.posts[next_post_index] ?? {text:'N/A'}).text.slice(0, 10)}…”`"></span> <button @click="navigator.clipboard.writeText(thread.posts[next_post_index].text) ; next_post_index++; if (next_post_index >= thread.posts.length) { state='notstarted' ; next_post_index = 0; }" x-text="`Copy № ${next_post_index}`"></button><button @click="state == 'notstarted'; next_post_index=0;">reset</button></span>
+				<span x-show="state == 'notstarted'"><button @click="state = 'copying' ; next_post_index = 0;">Start copying</button></span>
+				<span x-show="state == 'copying'">
+					<span x-text="`Press to copy next: № ${next_post_index}: “${(thread.posts[next_post_index] ?? {text:'N/A'}).text.slice(0, 10)}…”`"></span>
+					<button @click="navigator.clipboard.writeText(thread.posts[next_post_index].text) ; next_post_index++; if (next_post_index >= thread.posts.length) { state='notstarted' ; next_post_index = 0; }" x-text="`Copy № ${next_post_index}`"></button>
+					<button @click="state == 'notstarted'; next_post_index=0;">reset</button>
+				</span>
 			</div>
 		<template x-for="(post, index) in thread.posts" :key="post.uid" >
 			<div class=post :id="`post-${post.uid}`">
@@ -108,7 +111,7 @@
 
 	<details style="margin-top: 20ch"><summary>Inner:</summary>
 		<pre style="white-space: pre-wrap; max-width: 80ch;" x-text="JSON.stringify(threads, null, ' ')"></pre>
-		<button @click="navigator.clipboard.writeText(JSON.stringify(threads, null, ' '))">save to clipboard</button>
+		<button @click="navigator.clipboard.writeText(JSON.stringify(threads))">save to clipboard</button>
 		<button @click="let src = navigator.clipboard.writeText(JSON.stringify(threads, null, ' '))">load from clipboard</button>
 		<button @click="threads = []; active_thread_uid = null">Reset</button>
 	</details>
