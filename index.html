@@ -37,11 +37,12 @@
 				</details>
 
 			<div x-text="`${thread.posts.length} posts. ${thread.posts.reduce((total, post)=>total+post.text.length, 0)} chars, ${thread.posts.reduce((total, post)=>total+post.text.split(/\s+\b/).length, 0)} words`"></div>
-			<div x-data="{ state: 'notstarted', next_post_index: 0 }">
+			<div x-data="{ state: 'notstarted', next_post_index: 0, strip_hastags: false }">
 				<span x-show="state == 'notstarted'"><button @click="state = 'copying' ; next_post_index = 0;">Start copying</button></span>
 				<span x-show="state == 'copying'">
+					<button @click="text_to_post = thread.posts[next_post_index].text; if (strip_hastags) { text_to_post = text_to_post.replace('#', ''); } navigator.clipboard.writeText(text_to_post) ; next_post_index++; if (next_post_index >= thread.posts.length) { state='notstarted' ; next_post_index = 0; }" x-text="`Copy № ${next_post_index}`"></button>
 					<span x-text="`Press to copy next: № ${next_post_index}: “${(thread.posts[next_post_index] ?? {text:'N/A'}).text.slice(0, 10)}…”`"></span>
-					<button @click="navigator.clipboard.writeText(thread.posts[next_post_index].text) ; next_post_index++; if (next_post_index >= thread.posts.length) { state='notstarted' ; next_post_index = 0; }" x-text="`Copy № ${next_post_index}`"></button>
+					<label><input type=checkbox x-model="strip_hastags">Remove # from #hashtags</label>
 					<button @click="state == 'notstarted'; next_post_index=0;">reset</button>
 				</span>
 			</div>
@@ -109,10 +110,15 @@
 	</template>
 
 
+	<button @click="navigator.clipboard.writeText(JSON.stringify(threads))">save all to clipboard</button>
+	<button @click="let src = navigator.clipboard.readText(); console.log(src);">load from clipboard</button>
+	<div x-data="{ new_src: '' }">
+		<textarea x-model="new_src"></textarea>
+		<button @click="new_src = ''">clear</button>
+		<button @click="new_data = JSON.parse(new_src);">load this source</button>
+	</div>
 	<details style="margin-top: 20ch"><summary>Inner:</summary>
 		<pre style="white-space: pre-wrap; max-width: 80ch;" x-text="JSON.stringify(threads, null, ' ')"></pre>
-		<button @click="navigator.clipboard.writeText(JSON.stringify(threads))">save to clipboard</button>
-		<button @click="let src = navigator.clipboard.writeText(JSON.stringify(threads, null, ' '))">load from clipboard</button>
 		<button @click="threads = []; active_thread_uid = null">Reset</button>
 	</details>
 
