@@ -50,8 +50,8 @@
 			<div class=post :id="`post-${post.uid}`">
 				<div style="display: inline-block; min-width: 4ch"><span x-text="post.text.length"></span>c</div>
 				<div style="display: inline-block; min-width: 4ch"><span x-text="post.text.split(/\s+\b/).length"></span>w</div>
-				Tw <meter :value="post.text.length" x-text="post.text.length" min=0 high=140 max=280></meter>
-				Mst <meter :value="post.text.length" x-text="post.text.length" min=0 high=280 max=500 /></meter>
+				Tw <meter :value="post.text.length" x-text="post.text.length" min=0 optimal=140 high=280 max=500></meter>
+				Mst <meter :value="post.text.length" x-text="post.text.length" min=0 high=500 optimal=280 max=500 /></meter>
 				<div>
 					<textarea x-model="post.text" rows=3 cols=80></textarea>
 				</div>
