@@ -56,5 +56,18 @@ main {
 
 textarea {
 	width: min(80ch, 95vw);
+	min-height: 10ch;
+	height: fit-content;
+}
+
+.row_of_buttons {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	gap: 0.1rem
+}
+
+.row_of_buttons button {
+	padding: 0.2ch 1ch;
 }
 

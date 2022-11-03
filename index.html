@@ -12,11 +12,11 @@
 <body>
 
 <main
-		style="padding-left: 0.1rem; padding-right: 0.1rem"
+	style="padding-left: 0.1rem; padding-right: 0.1rem"
 	x-data="{ threads: $persist([]), active_thread_uid: null }"
 	x-init="if (threads.length > 0) { active_thread_uid = threads[0].uid; }"
 	>
-	<nav style="display: flex; flex-direction: column; justify-content: flex-start; align-items: stretch;">
+	<nav style="display: flex; flex-direction: column; justify-content: flex-start; align-items: stretch; gap: 0.2rem;">
 		<span>Show thread:</span>
 		<select x-model=active_thread_uid style="width: ">
 			<template x-for="thread in threads" :key="thread.uid">
@@ -51,15 +51,17 @@
 				</span>
 			</div>
 		<template x-for="(post, index) in thread.posts" :key="post.uid" >
-			<div class=post :id="`post-${post.uid}`">
-				<div style="display: inline-block; min-width: 4ch"><span x-text="post.text.length"></span>c</div>
-				<div style="display: inline-block; min-width: 4ch"><span x-text="post.text.split(/\s+\b/).length"></span>w</div>
-				Tw <meter :value="post.text.length" x-text="post.text.length" min=0 optimal=140 high=280 max=500></meter>
-				Mst <meter :value="post.text.length" x-text="post.text.length" min=0 high=500 optimal=280 max=500 /></meter>
+			<div class=post :id="`post-${post.uid}`" style="display: flex; flex-direction: column; gap: 0.4rem;">
 				<div>
-					<textarea x-model="post.text" rows=3></textarea>
+					<div style="display: inline-block; min-width: 4ch"><span x-text="post.text.length"></span>c</div>
+					<div style="display: inline-block; min-width: 4ch"><span x-text="post.text.split(/\s+\b/).length"></span>w</div>
+					Tw <meter :value="post.text.length" x-text="post.text.length" min=0 optimal=140 high=280 max=500></meter>
+					Mst <meter :value="post.text.length" x-text="post.text.length" min=0 high=500 optimal=280 max=500 /></meter>
 				</div>
 				<div>
+					<textarea x-model="post.text"></textarea>
+				</div>
+				<div class="row_of_buttons">
 					<button :disabled="index == 0" @click="thread.posts.splice(index, 1), thread.posts.splice(0, 0, post)">⭱</button>
 					<button :disabled="index == 0" @click="[thread.posts[index-1], thread.posts[index]] = [thread.posts[index], thread.posts[index-1]]">↑</button>
 					<button @click="let mynew = JSON.parse(JSON.stringify(post)); mynew.uid = Date.now(); thread.posts.splice(index, 0, mynew);">duplicate</button>
@@ -68,7 +70,7 @@
 					<button :disabled="index == thread.posts.length - 1" @click="thread.posts.splice(index, 1), thread.posts.push(post)">⭳</button>
 					<button @click="thread.posts.splice(index, 1)">🚮</button>
 				</div>
-				<div>
+				<div class="row_of_buttons">
 					<button @click="window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(post.text), '_blank')">tweet</button>
 					<button @click="navigator.clipboard.writeText(post.text)">📋</button>
 					<button @click="thread.posts.splice(index, 1) ; thread.stash.push(post);">stash</button>
@@ -85,7 +87,7 @@
 				Tw <meter :value="post.text.length" x-text="post.text.length" min=0 high=140 max=280></meter>
 				Mst <meter :value="post.text.length" x-text="post.text.length" min=0 high=280 max=500 /></meter>
 			<div>
-				<textarea name=new_post x-model="post.text" autofocus rows=3 @keydown.enter.prevent="if ($event.shiftKey) { let src = $event.target.value; let pos = $event.target.selectionStart; $event.target.value = src.slice(0, pos) + '\n' + src.slice(pos) ; $event.target.selectionStart = pos + 1; $event.target.selectionEnd = pos + 1; } else { $event.target.form['submit'].click(); }"></textarea>
+				<textarea name=new_post x-model="post.text" autofocus @keydown.enter.prevent="if ($event.shiftKey) { let src = $event.target.value; let pos = $event.target.selectionStart; $event.target.value = src.slice(0, pos) + '\n' + src.slice(pos) ; $event.target.selectionStart = pos + 1; $event.target.selectionEnd = pos + 1; } else { $event.target.form['submit'].click(); }"></textarea>
 			<div>
 				<button name="submit" style="min-width: 2rem;" submit>add</button>
 			</div>
@@ -100,7 +102,7 @@
 					Tw <meter :value="post.text.length" x-text="post.text.length" min=0 high=140 max=280></meter>
 					Mst <meter :value="post.text.length" x-text="post.text.length" min=0 high=280 max=500 /></meter>
 					<div>
-						<textarea disabled x-model="post.text" rows=3 @keydown.enter.prevent="if ($event.shiftKey) { let src = $event.target.value; let pos = $event.target.selectionStart; $event.target.value = src.slice(0, pos) + '\n' + src.slice(pos) ; $event.target.selectionStart = pos + 1; $event.target.selectionEnd = pos + 1; } else { $event.target.form['submit'].click(); }"></textarea>
+						<textarea disabled x-model="post.text" @keydown.enter.prevent="if ($event.shiftKey) { let src = $event.target.value; let pos = $event.target.selectionStart; $event.target.value = src.slice(0, pos) + '\n' + src.slice(pos) ; $event.target.selectionStart = pos + 1; $event.target.selectionEnd = pos + 1; } else { $event.target.form['submit'].click(); }"></textarea>
 					</div>
 					<div>
 						<button @click="thread.stash.splice(index, 1)">🚮</button>
