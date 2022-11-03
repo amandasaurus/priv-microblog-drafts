@@ -7,6 +7,38 @@
   }
 }
 
+@font-face {
+  font-family: comfortaa;
+  src: url(Comfortaa-Regular.woff2)
+}
+html, input, button, textarea {
+	font-family: comfortaa;
+}
+
+:root {
+	--old-lavender: hsl(293, 7%, 48%);
+	--heliotrope-gray: hsl(282, 6%, 60%);
+	--lavender-gray: hsl(258, 7%, 73%);
+	--light-gray: hsl(222, 13%, 84%);
+	--alice-blue: hsl(195, 50%, 95%);
+	--dutch-white: hsl(39, 65%, 85%);
+	--gold-crayola: hsl(36, 86%, 75%);
+	--yellow-orange: hsl(35, 95%, 66%);
+	--orange-peel: hsl(35, 100%, 55%);
+	--chocolate-traditional: hsl(35, 100%, 24%);
+}
+
+html {
+	background: #4E598C;
+	color: var(--alice-blue);
+}
+
+
+h1, h2 {
+	margin-top: 0;
+}
+
+
 body {
 	display: flex;
 	justify-content: center;
@@ -21,3 +53,8 @@ main {
 .post {
 	padding: 1rem 0.1rem;
 }
+
+textarea {
+	width: min(80ch, 95vw);
+}
+
