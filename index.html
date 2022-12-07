@@ -12,11 +12,10 @@
 <body>
 
 <main
-	style="padding-left: 0.1rem; padding-right: 0.1rem"
 	x-data="{ threads: $persist([]), active_thread_uid: null }"
 	x-init="if (threads.length > 0) { active_thread_uid = threads[0].uid; }"
 	>
-	<nav style="display: flex; flex-direction: column; justify-content: flex-start; align-items: stretch; gap: 0.2rem;">
+	<nav>
 		<span>Show thread:</span>
 		<select x-model=active_thread_uid style="width: ">
 			<template x-for="thread in threads" :key="thread.uid">
@@ -116,6 +115,7 @@
 	</template>
 
 
+	<h2>Source</h2>
 	<button @click="navigator.clipboard.writeText(JSON.stringify(threads))">save all to clipboard</button>
 	<button @click="let src = navigator.clipboard.readText(); console.log(src);">load from clipboard</button>
 	<div x-data="{ new_src: '' }">
