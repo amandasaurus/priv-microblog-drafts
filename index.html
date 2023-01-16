@@ -17,7 +17,7 @@
 	>
 	<nav>
 		<span>Show thread:</span>
-		<select x-model=active_thread_uid style="width: ">
+		<select x-model=active_thread_uid style="width: clamp(5ch, 100%, 50ch)">
 			<template x-for="thread in threads" :key="thread.uid">
 				<option :value="thread.uid" x-text="thread.title" />
 			</template>
@@ -67,8 +67,8 @@
 		<template x-for="(post, index) in thread.posts" :key="post.uid" >
 			<div class=post :id="`post-${post.uid}`" style="display: flex; flex-direction: column; gap: 0.4rem;">
 				<div>
-					<div style="display: inline-block; min-width: 4ch"><span x-text="post.text.length"></span>c</div>
-					<div style="display: inline-block; min-width: 4ch"><span x-text="post.text.split(/\s+\b/).length"></span>w</div>
+					<div style="display: inline-block; width: 4ch"><span x-text="post.text.length"></span>c</div>
+					<div style="display: inline-block; width: 4ch"><span x-text="post.text.split(/\s+\b/).length"></span>w</div>
 					Tw <meter :value="post.text.length" x-text="post.text.length" min=0 optimal=140 high=280 max=500></meter>
 					Mst <meter :value="post.text.length" x-text="post.text.length" min=0 high=500 optimal=280 max=500 /></meter>
 				</div>
