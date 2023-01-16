@@ -12,7 +12,7 @@
 <body>
 
 <main
-	x-data="{ threads: $persist([]), active_thread_uid: null }"
+	x-data="{ threads: $persist([]), active_thread_uid: null, instances: $persist([]) }"
 	x-init="if (threads.length > 0) { active_thread_uid = threads[0].uid; }"
 	>
 	<nav>
@@ -28,8 +28,23 @@
 			<button submit>add</button>
 		</form>
 		</details>
-
 	</nav>
+
+	<div id="instances_list">
+		<div x-show="instances.length > 0">
+			<span>Mastodon instances to share to:</span>
+			<template x-for="(instance_name, index) in instances"><span class=instance_name>
+					<a :href="instance_name"><code x-text=instance_name></code></a>
+					<button @click="instances.splice(index, 1)">🚮</button>
+			</span></template>
+		</div>
+		<div x-data="{new_instance_name: ''}">
+			<span>Add new instance</span>
+			<input type=text x-model=new_instance_name name="new_instance_name" />
+			<button @click="console.log(new_instance_name); instances.push(new_instance_name); new_instance_name=''">add</button>
+		</div>
+
+	</div>
 
 	<template x-for="(thread, index) in threads" :key="thread.uid">
 		<div class=thread x-show="thread.uid == active_thread_uid" :id="`thread-${thread.uid}`">
@@ -70,6 +85,10 @@
 					<button @click="thread.posts.splice(index, 1)">🚮</button>
 				</div>
 				<div class="row_of_buttons">
+					<button @click="window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(post.text), '_blank')">tweet</button>
+					<template x-for="instance in instances">
+						<button @click="window.open(`https://${instance}/share?text=${encodeURIComponent(post.text)}`, '_blank')" x-text=instance></button>
+					</template>
 					<button @click="window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(post.text), '_blank')">tweet</button>
 					<button @click="navigator.clipboard.writeText(post.text)">📋</button>
 					<button @click="thread.posts.splice(index, 1) ; thread.stash.push(post);">stash</button>
