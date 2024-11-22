@@ -69,8 +69,9 @@
 				<div>
 					<div style="display: inline-block; width: 4ch"><span x-text="post.text.length"></span>c</div>
 					<div style="display: inline-block; width: 4ch"><span x-text="post.text.split(/\s+\b/).length"></span>w</div>
-					Tw <meter :value="post.text.length" x-text="post.text.length" min=0 optimal=140 high=280 max=500></meter>
-					Mst <meter :value="post.text.length" x-text="post.text.length" min=0 high=500 optimal=280 max=500 /></meter>
+					Mst <meter :value="post.text.length" x-text="post.text.length" min=0 high=500 optimum=500 max=1000 /></meter>
+					Bsky <meter :value="post.text.length" x-text="post.text.length" min=0 high=300 optimum=300 max=1000 ></meter>
+					Th <meter :value="post.text.length" x-text="post.text.length" min=0 high=500 optimum=500 max=1000 ></meter>
 				</div>
 				<div>
 					<textarea x-model="post.text"></textarea>
@@ -85,15 +86,6 @@
 					<button @click="thread.posts.splice(index, 1)">🚮</button>
 				</div>
 				<div class="row_of_buttons">
-					<button @click="window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(post.text), '_blank')" style="display: flex; flex-direction: row; align-items: center; gap: 0.2ch;">
-						tweet
-						<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-external-link" height="1em" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-							<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-							<path d="M11 7h-5a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-5"></path>
-							<line x1="10" y1="14" x2="20" y2="4"></line>
-							<polyline points="15 4 20 4 20 9"></polyline>
-						</svg>
-					</button>
 					<template x-for="instance in instances">
 						<button @click="window.open(`https://${instance}/share?text=${encodeURIComponent(post.text)}`, '_blank')" style="display: flex; flex-direction: row; align-items: center; gap: 0.2ch;">
 							<span x-text=instance></span>
@@ -117,8 +109,9 @@
 			<div class=post>
 				<div style="display: inline-block; min-width: 4ch"><span x-text="post.text.length"></span>c</div>
 				<div style="display: inline-block; min-width: 4ch"><span x-text="post.text.split(/\s+\b/).length"></span>w</div>
-				Tw <meter :value="post.text.length" x-text="post.text.length" min=0 high=140 max=280></meter>
-				Mst <meter :value="post.text.length" x-text="post.text.length" min=0 high=280 max=500 /></meter>
+					Mst <meter :value="post.text.length" x-text="post.text.length" min=0 high=500 optimum=500 max=1000 /></meter>
+					Bsky <meter :value="post.text.length" x-text="post.text.length" min=0 high=300 optimum=300 max=1000 ></meter>
+					Th <meter :value="post.text.length" x-text="post.text.length" min=0 high=500 optimum=500 max=1000 ></meter>
 			<div>
 				<textarea name=new_post x-model="post.text" autofocus @keydown.enter.prevent="if ($event.shiftKey) { let src = $event.target.value; let pos = $event.target.selectionStart; $event.target.value = src.slice(0, pos) + '\n' + src.slice(pos) ; $event.target.selectionStart = pos + 1; $event.target.selectionEnd = pos + 1; } else { $event.target.form['submit'].click(); }"></textarea>
 			<div>
@@ -132,8 +125,9 @@
 				<div class=post>
 					<div style="display: inline-block; min-width: 4ch"><span x-text="post.text.length"></span>c</div>
 					<div style="display: inline-block; min-width: 4ch"><span x-text="post.text.split(/\s+\b/).length"></span>w</div>
-					Tw <meter :value="post.text.length" x-text="post.text.length" min=0 high=140 max=280></meter>
-					Mst <meter :value="post.text.length" x-text="post.text.length" min=0 high=280 max=500 /></meter>
+					Mst <meter :value="post.text.length" x-text="post.text.length" min=0 high=500 optimum=500 max=1000 /></meter>
+					Bsky <meter :value="post.text.length" x-text="post.text.length" min=0 high=300 optimum=300 max=1000 ></meter>
+					Th <meter :value="post.text.length" x-text="post.text.length" min=0 high=500 optimum=500 max=1000 ></meter>
 					<div>
 						<textarea disabled x-model="post.text" @keydown.enter.prevent="if ($event.shiftKey) { let src = $event.target.value; let pos = $event.target.selectionStart; $event.target.value = src.slice(0, pos) + '\n' + src.slice(pos) ; $event.target.selectionStart = pos + 1; $event.target.selectionEnd = pos + 1; } else { $event.target.form['submit'].click(); }"></textarea>
 					</div>
