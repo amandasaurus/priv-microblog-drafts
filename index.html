@@ -145,11 +145,11 @@
 
 	<h2>Source</h2>
 	<button @click="navigator.clipboard.writeText(JSON.stringify(threads))">save all to clipboard</button>
-	<button @click="let src = navigator.clipboard.readText(); console.log(src);">load from clipboard</button>
+	<button disabled @click="let src = navigator.clipboard.readText(); console.log(src);">load from clipboard</button>
 	<div x-data="{ new_src: '' }">
 		<textarea x-model="new_src"></textarea>
 		<button @click="new_src = ''">clear</button>
-		<button @click="new_data = JSON.parse(new_src);">load this source</button>
+		<button @click="new_data = JSON.parse(new_src); console.log(threads); for (let new_thread in new_data) { threads.push(new_data[new_thread]); } ; console.log(threads);">load this source</button>
 	</div>
 	<details style="margin-top: 20ch"><summary>Inner:</summary>
 		<pre style="white-space: pre-wrap; max-width: 80ch;" x-text="JSON.stringify(threads, null, ' ')"></pre>
