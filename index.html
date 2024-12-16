@@ -69,9 +69,9 @@
 				<div>
 					<div style="display: inline-block; width: 4ch"><span x-text="post.text.length"></span>c</div>
 					<div style="display: inline-block; width: 4ch"><span x-text="post.text.split(/\s+\b/).length"></span>w</div>
-					Mst <meter :value="post.text.length" x-text="post.text.length" min=0 high=500 optimum=500 max=1000 /></meter>
-					Bsky <meter :value="post.text.length" x-text="post.text.length" min=0 high=300 optimum=300 max=1000 ></meter>
-					Th <meter :value="post.text.length" x-text="post.text.length" min=0 high=500 optimum=500 max=1000 ></meter>
+					Mst&nbsp;<meter :value="post.text.length" x-text="post.text.length" min=0 high=500 optimum=500 max=500 /></meter>
+					Bsky&nbsp;<meter :value="post.text.length" x-text="post.text.length" min=0 high=300 optimum=300 max=300 ></meter>
+					Th&nbsp;<meter :value="post.text.length" x-text="post.text.length" min=0 high=500 optimum=500 max=500 ></meter>
 				</div>
 				<div>
 					<textarea x-model="post.text"></textarea>
@@ -109,9 +109,9 @@
 			<div class=post>
 				<div style="display: inline-block; min-width: 4ch"><span x-text="post.text.length"></span>c</div>
 				<div style="display: inline-block; min-width: 4ch"><span x-text="post.text.split(/\s+\b/).length"></span>w</div>
-					Mst <meter :value="post.text.length" x-text="post.text.length" min=0 high=500 optimum=500 max=1000 /></meter>
-					Bsky <meter :value="post.text.length" x-text="post.text.length" min=0 high=300 optimum=300 max=1000 ></meter>
-					Th <meter :value="post.text.length" x-text="post.text.length" min=0 high=500 optimum=500 max=1000 ></meter>
+					Mst&nbsp;<meter :value="post.text.length" x-text="post.text.length" min=0 high=500 optimum=500 max=500 /></meter>
+					Bsky&nbsp;<meter :value="post.text.length" x-text="post.text.length" min=0 high=300 optimum=300 max=300 ></meter>
+					Th&nbsp;<meter :value="post.text.length" x-text="post.text.length" min=0 high=500 optimum=500 max=500 ></meter>
 			<div>
 				<textarea name=new_post x-model="post.text" autofocus @keydown.enter.prevent="if ($event.shiftKey) { let src = $event.target.value; let pos = $event.target.selectionStart; $event.target.value = src.slice(0, pos) + '\n' + src.slice(pos) ; $event.target.selectionStart = pos + 1; $event.target.selectionEnd = pos + 1; } else { $event.target.form['submit'].click(); }"></textarea>
 			<div>
@@ -125,9 +125,9 @@
 				<div class=post>
 					<div style="display: inline-block; min-width: 4ch"><span x-text="post.text.length"></span>c</div>
 					<div style="display: inline-block; min-width: 4ch"><span x-text="post.text.split(/\s+\b/).length"></span>w</div>
-					Mst <meter :value="post.text.length" x-text="post.text.length" min=0 high=500 optimum=500 max=1000 /></meter>
-					Bsky <meter :value="post.text.length" x-text="post.text.length" min=0 high=300 optimum=300 max=1000 ></meter>
-					Th <meter :value="post.text.length" x-text="post.text.length" min=0 high=500 optimum=500 max=1000 ></meter>
+					Mst&nbsp;<meter :value="post.text.length" x-text="post.text.length" min=0 high=500 optimum=500 max=500 /></meter>
+					Bsky&nbsp;<meter :value="post.text.length" x-text="post.text.length" min=0 high=300 optimum=300 max=300 ></meter>
+					Th&nbsp;<meter :value="post.text.length" x-text="post.text.length" min=0 high=500 optimum=500 max=500 ></meter>
 					<div>
 						<textarea disabled x-model="post.text" @keydown.enter.prevent="if ($event.shiftKey) { let src = $event.target.value; let pos = $event.target.selectionStart; $event.target.value = src.slice(0, pos) + '\n' + src.slice(pos) ; $event.target.selectionStart = pos + 1; $event.target.selectionEnd = pos + 1; } else { $event.target.form['submit'].click(); }"></textarea>
 					</div>
